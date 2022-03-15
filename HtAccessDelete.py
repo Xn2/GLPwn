@@ -46,6 +46,9 @@ def checkFiles():
 def dumpFiles():
     if not checkFiles():
         print("Directory listing is not enabled on /files. use --exploit to exploit the pulginimage vulnerability.")
+    else:
+        print("Dumping files")
+        
 
 def exploit():
     if checkVulnerable() and not checkFiles():
@@ -68,5 +71,8 @@ if args.exploit:
     exploit()
 
 if args.dumpfiles:
-    
+    dumpFiles()
 
+if not args.check and not args.dumpfiles and not args.exploit and not args.token:
+    print('Please specify something to do. (use -h to get the help menu)')
+    quit()
