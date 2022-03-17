@@ -11,11 +11,11 @@ GLPwn is able to dump all files inside the GLPI `/files` folder, which includes 
 GLPwn is also able to automaticaly detect which session is valid, has the most rights on the platform, and the sessions user's name.
 
 ## Disclaimer
-This tool leverages a vulnerability inside GLPI that permanently erases a critical configuration file. Once exploited, the private data inside GLPI will be exposed publicly.
+**This tool leverages a vulnerability inside GLPI that permanently erases a critical configuration file. Once exploited, the private data inside GLPI will be exposed publicly.**
 
-This tool shall not be used outside of educationnal purposes and/or penetration tests.
+**This tool shall not be used outside of educationnal purposes and/or penetration tests.**
 
-Just like with sex, please use with consent of both parties.
+**Just like with sex, please use with consent of both parties.**
 
 ## Installation
 ### Pre-requisites
