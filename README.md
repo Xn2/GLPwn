@@ -10,6 +10,13 @@ GLPwn is able to dump all files inside the GLPI `/files` folder, which includes 
 
 GLPwn is also able to automaticaly detect which session is valid, has the most rights on the platform, and the sessions user's name.
 
+## Disclaimer
+This tool leverages a vulnerability inside GLPI that permanently erases a critical configuration file. Once exploited, the private data inside GLPI will be exposed publicly.
+
+This tool shall not be used outside of educationnal purposes and/or penetration tests.
+
+Just like with sex, please use with consent of both parties.
+
 ## Installation
 ### Pre-requisites
 - Python 3.9 or later
@@ -32,7 +39,5 @@ Optionnal parameters :
  - `--sessions` Attempts to retrieve valid session tokens.
  - `--dumpfiles` Attempts to dump the whole content of the `/files` folder.
 
-## Disclaimer
+## License
 The Software is provided “as is”, without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages or other liability, whether in an action of contract, tort or otherwise, arising from, out of or in connection with the software or the use or other dealings in the Software.
-
-Just like with sex, please use with consent of both parties.
