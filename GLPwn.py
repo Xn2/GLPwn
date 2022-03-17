@@ -5,6 +5,10 @@ import argparse
 from urllib.request import Request, urlopen, urlretrieve
 from bs4 import BeautifulSoup
 import os
+
+with open("asciiart.txt", "r") as f:
+    print(f.read())
+
 parser = argparse.ArgumentParser(description='GLPI hack tool')
 parser.add_argument('--url', help="URL of the GLPI instance", required=True)
 parser.add_argument('--dumpfiles',help="Dump the stored ticket attachments", action="store_true")
